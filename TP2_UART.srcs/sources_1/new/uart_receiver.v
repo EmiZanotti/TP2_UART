@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+//Ejemplo obtenido de la seccion 8.2.3 del libro
+//Listing 8.1
 module uart_rx
     #(
         parameter DATA_BITS = 8, STOP_TICKS = 16
