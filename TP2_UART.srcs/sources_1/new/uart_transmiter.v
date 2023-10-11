@@ -52,7 +52,7 @@ module uart_tx
             idle:
                 begin
                     tx_next = 1'b1;
-                    if (tx-start)
+                    if (tx_start)
                         begin
                             state_next = start;
                             s_next = 0;
