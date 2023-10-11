@@ -2,13 +2,13 @@
 
 module uart_tx 
     #(
-        parameter DBIT = 8,// # data bits
-        SB_TICK = 16 // # ticks for stop bits
+        parameter DATA_BITS = 8,// # data bits
+                  STOP_TICKS = 16 // # ticks for stop bits
     )
     (   
         input wire clk, reset,
         input wire tx_start, s_tick,
-        input wire [7:0] din,
+        input wire [7:0] i_data,
         output reg tx_done_tick,
         output wire tx
     );
@@ -56,7 +56,8 @@ module uart_tx
                         begin
                             state_next = start;
                             s_next = 0;
-                            b_next = din;
+                            b_next = i_data
+                ;
                         end
                 end
             start:
@@ -80,7 +81,7 @@ module uart_tx
                                 begin
                                     s_next = 0;
                                     b_next = b_reg >> 1;
-                                    if (n_reg==(DBIT-1))
+                                    if (n_reg==(DATA_BITS-1))
                                         state_next = stop ;
                                     else
                                         n_next = n_reg + 1;
@@ -92,7 +93,7 @@ module uart_tx
                 begin
                     tx_next = 1'b1;
                     if (s_tick)
-                        if (s_reg==(SB_TICK-1))
+                        if (s_reg==(STOP_TICKS-1))
                             begin
                                 state_next = idle;
                                 tx_done_tick=1'b1;
