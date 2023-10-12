@@ -10,12 +10,12 @@ module uart #(
         input clk, reset,
 
         // rx
-        output  [DATA_BITS - 1:0] rx_dout, // data rx
+        output  [DATA_BITS - 1:0] r_data, // data rx
         output  rx_empty,                  // rx vacio
         input   rd_uart, rx,                // bit de lectura
 
         // tx
-        input   [DATA_BITS - 1:0] tx_din, // data entrada tx
+        input   [DATA_BITS - 1:0] w_data, // data entrada tx
         input   wr_uart,                   // write enable
         output  tx_full, tx
     );
@@ -43,16 +43,16 @@ module uart #(
         .STOP_TICKS(STOP_TICKS)
     ) uart_rx_unit (
         .clk(clk), 
-        .reset(rx_reset),
+        .reset(reset),
         .rx(rx), 
-        .s_tick(max_tick),
+        .s_tick(tick),
         .rx_done_tick(rx_done_tick),
-        .o_data(rx_dout)
+        .o_data(rx_data_out)
     );
     
     fifo
     # (
-        .B(DATA_BITS), .w(FIFO_W)
+        .B(DATA_BITS), .W(FIFO_W)
     ) fifo_rx_unit (
         .i_clk(clk), .i_reset(reset), .i_rd(rd_uart),
         .i_wr(rx_done_tick), .w_data(rx_data_out),
@@ -69,14 +69,14 @@ module uart #(
         .reset(reset),
         .tx_start(tx_fifo_not_empty),
         .s_tick(tick),
-        .din(tx_fifo_out),
+        .i_data(tx_fifo_out),
         .tx_done_tick(tx_done_tick),
         .tx(tx)
     );
 
     fifo
     # (
-        .B(DATA_BITS), .w(FIFO_W)
+        .B(DATA_BITS), .W(FIFO_W)
     ) fifo_tx_unit (
         .i_clk(clk), .i_reset(reset), .i_rd(tx_done_tick),
         .i_wr(wr_uart), .w_data(w_data),

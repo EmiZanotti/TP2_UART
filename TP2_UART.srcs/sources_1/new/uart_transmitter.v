@@ -8,7 +8,7 @@ module uart_tx
     (   
         input wire clk, reset,
         input wire tx_start, s_tick,
-        input wire [7:0] i_data,
+        input wire [DATA_BITS - 1:0] i_data,
         output reg tx_done_tick,
         output wire tx
     );
@@ -29,8 +29,10 @@ module uart_tx
         if (reset)
             begin
                 state_reg <= idle;
-                s_reg <= 0; n_reg <= 0;
-                b_reg <= 0; tx_reg <= 1'b1;
+                s_reg <= 0;
+                n_reg <= 0;
+                b_reg <= 0;
+                tx_reg <= 1'b1;
             end
         else
             begin
@@ -41,7 +43,8 @@ module uart_tx
                 tx_reg <= tx_next;
             end
       
-    always @(*) begin
+    always @* 
+    begin
         state_next = state_reg;
         tx_done_tick = 1'b0;
         s_next = s_reg;
@@ -56,8 +59,7 @@ module uart_tx
                         begin
                             state_next = start;
                             s_next = 0;
-                            b_next = i_data
-                ;
+                            b_next = i_data;
                         end
                 end
             start:
@@ -82,7 +84,7 @@ module uart_tx
                                     s_next = 0;
                                     b_next = b_reg >> 1;
                                     if (n_reg==(DATA_BITS-1))
-                                        state_next = stop ;
+                                        state_next = stop;
                                     else
                                         n_next = n_reg + 1;
                                 end
@@ -96,7 +98,7 @@ module uart_tx
                         if (s_reg==(STOP_TICKS-1))
                             begin
                                 state_next = idle;
-                                tx_done_tick=1'b1;
+                                tx_done_tick = 1'b1;
                             end 
                         else
                             s_next = s_reg + 1;
@@ -104,5 +106,5 @@ module uart_tx
             endcase
         end
         // output
-            assign tx = tx_reg;
+        assign tx = tx_reg;
 endmodule

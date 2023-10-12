@@ -23,7 +23,7 @@ module uart_rx
     reg [2:0] n_reg, n_next;
     reg [7:0] b_reg, b_next;
 
-    always @(posedge clk)
+    always @(posedge clk, posedge reset)
         if (reset)
             begin
                state_reg <= idle;
@@ -33,6 +33,7 @@ module uart_rx
             end
         else
             begin
+                state_reg <= state_next;
                 s_reg <= s_next;
                 n_reg <= n_next;
                 b_reg <= b_next;
