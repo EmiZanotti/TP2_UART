@@ -74,6 +74,7 @@ always @(*)
                 begin
                     alu_params_next = 3'b010;
                     r_data_next = i_rx_data;
+                    state_next = OP;
                 end
             OP:
                 if (~rx_fifo_empty)
