@@ -51,9 +51,10 @@ uart uart_unit(
     .rd_uart(w_rd), .rx(rx), .w_data(tx_data), .wr_uart(w_wr), .tx_full(w_full), .tx(tx)
 );
 
-interfaz_rx interfaz_rx_alu(
-    .clk(i_clk), .reset(i_reset), .rx_fifo_empty(w_empty), .i_rx_data(rx_data), .o_OP(w_op),
-    .o_A(w_a), .o_B(w_b), .o_alu_data(alu_data), .o_rd_fifo_en(w_rd)
+interfaz interfaz_alu(
+    .clk(i_clk), .reset(i_reset), .rx_fifo_empty(w_empty), .tx_fifo_full(w_full),
+    .i_rx_data(rx_data), .i_alu_result(o_data), .o_OP(w_op), .o_A(w_a), .o_B(w_b), .o_alu_data(alu_data),
+    .o_tx_data(tx_data), .o_rd_fifo_en(w_rd), .o_wr_fifo_en(w_wr)
 );
 
 alu_top alu_unit(
