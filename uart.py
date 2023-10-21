@@ -44,13 +44,16 @@ def main():
         uart.write(bytes(data))
 
         print("Esperando respuesta...")
+        
         respuesta = None
 
         while(respuesta == None):
             respuesta = recive_data(uart)
-            print(f"Resultado ALU: {respuesta}")
 
-        quit = input("Desea seguir calculando?")   
+            if respuesta != None:
+                print(f"Resultado ALU: {respuesta} -> {int(format(respuesta, '08b'))}")
+
+        quit = input("Desea seguir calculando? ('exit' para salir o presione enter para continuar): ")   
 
         if quit == "exit":
             break     
