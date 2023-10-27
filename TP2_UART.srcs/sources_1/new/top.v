@@ -38,4 +38,6 @@ alu alu_unit(
     .i_a(w_a), .i_b(w_b), .i_op(w_op),
     .o_display(o_data), .o_zero(o_zero), .o_carry(o_carry)
 );
+
+  
 endmodule

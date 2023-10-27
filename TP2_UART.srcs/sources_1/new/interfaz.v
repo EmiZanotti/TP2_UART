@@ -17,13 +17,14 @@ localparam [2:0]
     A = 3'b001,
     B = 3'b010,
     OP = 3'b011,
-    send = 3'b100;
+    cycle = 3'b100,
+    send = 3'b101;
 
 reg [INPUT_SIZE - 1:0]  alu_a_data, alu_a_data_next, 
                         alu_b_data, alu_b_data_next,
                         alu_op_data, alu_op_data_next;
 reg r_rd_en, r_wr_en;
-reg [2:0] state_reg, state_next;
+reg [2:0] state_reg, state_next, state_last, state_last_next;
 
 localparam OP_ADD = 8'b00100000;
 localparam OP_SUB = 8'b00100010;
@@ -42,9 +43,11 @@ always @(posedge clk)
                 alu_b_data <= {INPUT_SIZE - 1 {1'b0}};
                 alu_op_data <= {INPUT_SIZE - 1 {1'b0}};
                 r_rd_en <= 1'b0;
+                state_reg <= idle;
             end
         else
             state_reg <= state_next;
+            state_last <= state_last_next;
             if (~rx_fifo_empty)
                 begin
                     alu_a_data <= alu_a_data_next;
@@ -52,6 +55,8 @@ always @(posedge clk)
                     alu_op_data <= alu_op_data_next;
                     r_rd_en <= 1'b1;
                 end
+            else
+                r_rd_en <= 1'b0;
     end
 
 always @(*)
@@ -60,6 +65,7 @@ always @(*)
         alu_b_data_next = alu_b_data;
         alu_op_data_next = alu_op_data;
         state_next = state_reg;
+        state_last_next = state_last;
         r_wr_en = 1'b0;
         
         case (state_reg)
@@ -67,18 +73,21 @@ always @(*)
                 if (~rx_fifo_empty)
                 begin
                     state_next = A;
+                    state_last_next = idle;
                 end
             A:
                 if (~rx_fifo_empty)
                 begin
                     alu_a_data_next = i_rx_data;
-                    state_next = B;
+                    state_next = cycle;
+                    state_last_next = A;
                 end
             B:
                 if (~rx_fifo_empty)
                 begin
                     alu_b_data_next = i_rx_data;
-                    state_next = OP;
+                    state_next = cycle;
+                    state_last_next = B;
                 end
             OP:
                 if (~rx_fifo_empty)
@@ -97,12 +106,19 @@ always @(*)
                             alu_op_data_next = OP_ADD; 
                     endcase
                     state_next = send;
+                    state_last_next = OP;
                 end
+            cycle:
+                case (state_last)
+                    A: state_next = B;
+                    B: state_next = OP;
+                endcase
             send:
                 if (~tx_fifo_full)
                 begin
                     r_wr_en = 1'b1;
                     state_next = idle;
+                    state_last_next = send;
                 end
         endcase
     end
@@ -110,8 +126,8 @@ always @(*)
 assign o_tx_data = i_alu_result;
 assign o_rd_fifo_en = r_rd_en;
 assign o_wr_fifo_en = r_wr_en;
-assign o_OP = alu_a_data;
-assign o_A = alu_b_data;
-assign o_B = alu_op_data;
+assign o_OP = alu_op_data;
+assign o_A = alu_a_data;
+assign o_B = alu_b_data;
 
 endmodule

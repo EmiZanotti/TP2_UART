@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
 
 module alu #(
-        parameter SIZE_OP = 6,
         parameter SIZE_BUS = 8
     )(
         input   [SIZE_BUS - 1:0]    i_a,
