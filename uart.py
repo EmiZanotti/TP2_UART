@@ -8,15 +8,15 @@ def receive_data(uart):
 
 def send_data(uart):
     data1 = int(input("Ingrese el primer dato (máximo 8 bits en binario): "))
-    data1_bin = format(data1, '08b').encode('ascii')
+    data1_bin = data1.to_bytes(1, 'big')
     print(data1_bin)
     uart.write(data1_bin)
     data2 = int(input("Ingrese el segundo dato (máximo 8 bits en binario): "))
-    data2_bin = format(data2, '08b').encode('ascii')
+    data2_bin = data2.to_bytes(1, 'big')
     print(data2_bin)
     uart.write(data2_bin)
     data3 = int(input("Ingrese el tercer dato (máximo 8 bits en binario): "))
-    data3_bin = format(data3, '08b').encode('ascii')
+    data3_bin = data3.to_bytes(1, 'big')
     print(data3_bin)
     uart.write(data3_bin)
 
@@ -55,14 +55,7 @@ def main():
             respuesta = receive_data(uart)
 
             if respuesta != None:
-                print(f"Resultado ALU: {ascii_to_binary(respuesta)}")
-
-        quit = input("Desea seguir calculando? ('exit' para salir o presione enter para continuar): ")   
-
-        if quit == "exit":
-            break     
-
-    uart.close()
+                print(f"Resultado ALU: {int.from_bytes(respuesta, 'big')}")
 
 if __name__ == "__main__":
     main()
